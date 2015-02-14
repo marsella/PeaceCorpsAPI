@@ -12,11 +12,17 @@ import urllib2
 import json
 from collections import namedtuple
 
+# id : unique country ID (integer)
+# name : human-readable country name (string)
 # slug : unique country ID (string)
 # region : unique region ID (string)
+# current : program is active? (bool)
+# volunteers : number of PC volunteers (int)
+# pcr : is Peace Corps Response available (bool)
 # sectors : PC sectors availabble (list of string)
 # langs : languages spoken (list of string)
-Opportunity = namedtuple('Opportunity', 'slug, region, sectors, langs')
+Opportunity = namedtuple('Opportunity', 'id, name, slug, region, current, \
+  volunteers, pcr, sectors, langs')
 
 # enumeration for sectors
 NUMSECTORS = 6
@@ -30,12 +36,18 @@ class Sectors:
 # rets : Opportunity object
 def parseOpportunity(opp):
   print 'parsing opportunity now'
+  country_id = opp['id']
+  name = opp['name']
   slug = opp['slug']
   region = opp['region']
+  current = opp['current']
+  volunteers = opp['volunteers']
+  pcr = opp['pcr']
   sectors = parseSectors(opp['sectors'])
   langs = parseLanguages(opp['languages'])
 
-  return Opportunity(slug, region, sectors, langs)
+  return Opportunity(country_id, name, slug, region, current, volunteers,
+    pcr, sectors, langs)
 
 
 # sectors : sectors field from request
@@ -57,6 +69,7 @@ def parseSectors(sector_str):
 #   i.e., 'also known as Kweyole' 
 def parseLanguages(lang_str):
   # TODO: integrate with existing list of languages (standardize results)
+  print lang_str
   langs = lang_str.replace('and',',').split(',')
   return langs
 
@@ -66,7 +79,7 @@ def getOpportunities():
   print 'getting opportunity'
   url = 'http://www.peacecorps.gov/api/v1/geography/countries/belize'
   url = 'http://www.peacecorps.gov/api/v1/geography/countries/?' \
-    + 'region=easteurope&current=true'
+  + 'region=caribbean&current=true'
   obj = urllib2.urlopen(url).read()
   return json.loads(obj)
   
